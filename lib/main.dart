@@ -27,8 +27,17 @@ class _MyAppState extends State<MyApp> {
 
   getData() async{
     var result = await http.get(Uri.parse('https://codingapple1.github.io/app/data.json'));
+    // Dio 패키지 설치하면 get요청 짧아짐
+
+
+
+    if( result.statusCode == 200 ){
+      // else 예외처리
+    }
     // json을 []{}로 변환해서 씀
+    setState(() {
       data = jsonDecode(result.body);
+    });
   }
   // 앱 로드될 때 실행
   @override
@@ -50,6 +59,7 @@ class _MyAppState extends State<MyApp> {
       ),
 
       body: [
+        // FutureBuilder(builder: (){}, future: data,) 자주 바뀌는 데이터에는 부적절
         HomePage(data : data),
         Text('샵페이지', style: Theme.of(context).textTheme.bodyText1,)
       ][tab],
@@ -72,26 +82,31 @@ class _MyAppState extends State<MyApp> {
 }
 
 class HomePage extends StatelessWidget {
-  HomePage({Key? key, required this.data}) : super(key: key);
+  HomePage({Key? key, this.data}) : super(key: key);
   var cnt = 0;
-  var data = [];
+  final data;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.network(data[index]['image']),
-              //Image.asset('shuri.png'),
-              Text("좋아요 " + data[index]['likes'].toString()),
-              Text(data[index]['user']),
-              Text(data[index]['content'])
-            ],
-          );
-        }
-      );
+    // data 가 있으면 실행해주세요
+    if (data.isNotEmpty) {
+      return ListView.builder(
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.network(data[index]['image']),
+                //Image.asset('shuri.png'),
+                Text("좋아요 " + data[index]['likes'].toString()),
+                Text(data[index]['user']),
+                Text(data[index]['content'])
+              ],
+            );
+          }
+        );
+    } else {
+      return Text('로딩중');
+    }
   }
 }
