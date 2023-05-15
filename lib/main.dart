@@ -81,26 +81,71 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({Key? key, this.data}) : super(key: key);
-  var cnt = 0;
   final data;
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  var cnt = 0;
+
+  // 스크롤 높이
+  var scroll = ScrollController();
+
+  // flag
+  var gettingMore = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    // 왼쪽변수(scroll)이 변할때마다
+    scroll.addListener(() async {
+      // 맨 밑까지 스크롤 했니 ?
+      // 필요없어지면 리스너 제거 > 성능
+      //print(scroll.position.pixels);  // 현재 위치 (스크롤 거리)
+      //print(scroll.position.maxScrollExtent);     // 최대 스크롤 거리
+      //print(scroll.position.userScrollDirection);  // 방향
+
+      if(scroll.position.pixels == scroll.position.maxScrollExtent){
+
+        // 게시물 더 가져와주세요
+        // http://codingapple1.github.io/app/more1.json
+        // GET요청
+        if( !gettingMore ) {
+          var result = await http.get(
+              Uri.parse('https://codingapple1.github.io/app/more1.json'));
+
+          var more = jsonDecode(result.body);
+          setState(() {
+            widget.data.add(more);
+          });
+        }
+        gettingMore = true;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // data 가 있으면 실행해주세요
-    if (data.isNotEmpty) {
+    if (widget.data.isNotEmpty) {
       return ListView.builder(
-          itemCount: data.length,
+          controller: scroll,
+          itemCount: widget.data.length,
           itemBuilder: (context, index) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(data[index]['image']),
+                Image.network(widget.data[index]['image']),
                 //Image.asset('shuri.png'),
-                Text("좋아요 " + data[index]['likes'].toString()),
-                Text(data[index]['user']),
-                Text(data[index]['content'])
+                Text("좋아요 " + widget.data[index]['likes'].toString()),
+                Text(widget.data[index]['user']),
+                Text(widget.data[index]['content'])
               ],
             );
           }
