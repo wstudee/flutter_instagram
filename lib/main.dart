@@ -54,7 +54,11 @@ class _MyAppState extends State<MyApp> {
       appBar: AppBar(
         title: Text('Instagram'),
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.add_box_outlined)),
+          IconButton(onPressed: (){
+            Navigator.push(context,
+              MaterialPageRoute(builder: (c) => Upload() )
+            );
+          }, icon: Icon(Icons.add_box_outlined)),
         ],
       ),
 
@@ -94,6 +98,8 @@ class _HomePageState extends State<HomePage> {
 
   // 스크롤 높이
   var scroll = ScrollController();
+  var getReqCnt = 0;
+  var getReqUrl = ['https://codingapple1.github.io/app/more1.json', 'https://codingapple1.github.io/app/more2.json'];
 
   // flag
   var gettingMore = false;
@@ -117,15 +123,18 @@ class _HomePageState extends State<HomePage> {
         // http://codingapple1.github.io/app/more1.json
         // GET요청
         if( !gettingMore ) {
-          var result = await http.get(
-              Uri.parse('https://codingapple1.github.io/app/more1.json'));
-
-          var more = jsonDecode(result.body);
-          setState(() {
-            widget.data.add(more);
-          });
+          if(getReqCnt < 2) {
+            var result = await http.get(Uri.parse(getReqUrl[getReqCnt]));
+            var more = jsonDecode(result.body);
+            setState(() {
+              widget.data.add(more);
+            });
+            getReqCnt++;
+          } else {
+            gettingMore = true;
+          }
         }
-        gettingMore = true;
+
       }
     });
   }
@@ -153,5 +162,25 @@ class _HomePageState extends State<HomePage> {
     } else {
       return Text('로딩중');
     }
+  }
+}
+
+class Upload extends StatelessWidget {
+  const Upload({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('이미지업로드화면'),
+          IconButton(onPressed: (){
+            Navigator.pop(context);
+          }, icon: Icon(Icons.close))
+        ],
+      ),
+    );
   }
 }

@@ -24,3 +24,5 @@ Flutter > instagram 만들기
 10. 커스텀위젯 사용해서 페이지 1 만들기
 11. ★ 서버에서 데이터 가져오기 GET요청
 12. FutureBuilder (오래 걸리는 요청 Future)
+
+13. 사진 업로드 페이지 Navigator 
